@@ -1,0 +1,22 @@
+diff --git a/README.md b/README.md
+index 7d0c076..ade1d92 100644
+--- a/README.md
++++ b/README.md
+@@ -7,6 +7,10 @@ Welcome to the Bookstore API documentation. This API provides endpoints for mana
+ http://localhost:3000/api
+ ```
+ 
++
++
++
++
+ ## Authentication
+ 
+ The API uses JWT tokens for authentication. Tokens are set as HTTP-only cookies upon successful login.
+@@ -106,4 +110,4 @@ Content-Type: application/json
+ - All timestamps are in ISO 8601 format
+ - Private API keys are only shown once during generation and rotation
+ - Store owners can only manage their own stores and books
+-- Users can only manage their own cart and reviews
+\ No newline at end of file
++- Users can only manage their own cart and reviews
