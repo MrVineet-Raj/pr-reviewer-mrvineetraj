@@ -1,45 +1,11 @@
-import requests
-from app.core.config import env_conf
-import json
-from langgraph.graph import StateGraph,START,END
-from app.services.langgraph_nodes import ReviewState,fetch_diff_node,generate_walkthrough,generate_diff_table,generate_sequence_diagram,generate_activity_diagram,post_pr_comment,generate_review_comments,post_review_comments
-from app.services.github_service import github_services
-from diff_data import test
+from fastapi import FastAPI
+from app.routes.github import router as github_router
+from app.services.cron import lifespan
 
+app = FastAPI(lifespan=lifespan)
 
-def prReview(owner: str, pull_number: int, repo: str):
-    graph = StateGraph(ReviewState)
+app.include_router(github_router, prefix="/api/v1/github",tags=["Github"])
 
-    graph.add_node("fetch_diff", fetch_diff_node)
-    graph.add_node("generate_walkthrough", generate_walkthrough)
-    graph.add_node("generate_diff_table", generate_diff_table)
-    graph.add_node("generate_sequence_diagram", generate_sequence_diagram)
-    graph.add_node("generate_activity_diagram", generate_activity_diagram)
-    graph.add_node("post_pr_comment", post_pr_comment)
-    graph.add_node("generate_review_comments", generate_review_comments)
-    graph.add_node("post_review_comments", post_review_comments)
-
-    graph.add_edge(START, "fetch_diff")
-
-    graph.add_edge("fetch_diff", "generate_review_comments")
-    graph.add_edge("generate_review_comments", "post_review_comments")
-    graph.add_edge("post_review_comments", END)
-
-    # graph.add_edge("fetch_diff", "generate_walkthrough")
-    # graph.add_edge("generate_walkthrough", "generate_diff_table")
-    # graph.add_edge("generate_diff_table", "generate_sequence_diagram")
-    # graph.add_edge("generate_sequence_diagram", "generate_activity_diagram")
-    # graph.add_edge("generate_activity_diagram", "post_pr_comment")
-    # graph.add_edge("post_pr_comment", END)
-
-
-    compiled = graph.compile()
-
-    return compiled.invoke({
-        "owner": owner,
-        "pull_number": pull_number,
-        "repo": repo,
-        "llm_messages": []
-    })
-
-prReview("MrVineetRaj",9,"verdict")
+@app.get("/",tags=["Init"])
+async def health():
+    return {"message": "hello from galaxy"}

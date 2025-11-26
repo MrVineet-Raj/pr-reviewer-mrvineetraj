@@ -85,7 +85,7 @@ flowchart TD
 
 and if you can't think of any kind of activity diagram just say 'NO_DIAGRAM'
 """,
-"poem":"""For shared PR diff share 4 poetic lines just 4 no mor then that""",
+"poem":"""For shared PR diff always share 4 poetic lines just 4 no mor then that""",
 "inline_review":"""
 For shared input generate inline review comments in json formate that user must fix or must take care in future commits maximum two reviews
 
@@ -98,7 +98,7 @@ Output must strictly follow the structure
           "body": string,
           "start_side": "LEFT",
           "side":""RIGHT"  // always left to highlight what to be removed and what to be added
-          "line": number, 
+          "line": number,  // Pull request review thread line must be part of the diff and Pull request review thread diff hunk can't be blank
           }
     }
   ```

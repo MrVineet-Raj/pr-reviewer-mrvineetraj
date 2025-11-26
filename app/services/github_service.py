@@ -66,7 +66,6 @@ class GithubServices:
                 json={"body": description,"event": "COMMENT","comments":reviews}  # Format depending on GitHub spec
             )
 
-            print(response.json())
 
             if response.status_code not in (200, 201):
                 return GithubServiceOutput(
