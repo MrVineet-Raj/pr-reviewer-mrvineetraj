@@ -1,30 +1,45 @@
 import requests
 from app.core.config import env_conf
 import json
+from langgraph.graph import StateGraph,START,END
+from app.services.langgraph_nodes import ReviewState,fetch_diff_node,generate_walkthrough,generate_diff_table,generate_sequence_diagram,generate_activity_diagram,post_pr_comment,generate_review_comments,post_review_comments
+from app.services.github_service import github_services
+from diff_data import test
 
 
+def prReview(owner: str, pull_number: int, repo: str):
+    graph = StateGraph(ReviewState)
+
+    graph.add_node("fetch_diff", fetch_diff_node)
+    graph.add_node("generate_walkthrough", generate_walkthrough)
+    graph.add_node("generate_diff_table", generate_diff_table)
+    graph.add_node("generate_sequence_diagram", generate_sequence_diagram)
+    graph.add_node("generate_activity_diagram", generate_activity_diagram)
+    graph.add_node("post_pr_comment", post_pr_comment)
+    graph.add_node("generate_review_comments", generate_review_comments)
+    graph.add_node("post_review_comments", post_review_comments)
+
+    graph.add_edge(START, "fetch_diff")
+
+    graph.add_edge("fetch_diff", "generate_review_comments")
+    graph.add_edge("generate_review_comments", "post_review_comments")
+    graph.add_edge("post_review_comments", END)
+
+    # graph.add_edge("fetch_diff", "generate_walkthrough")
+    # graph.add_edge("generate_walkthrough", "generate_diff_table")
+    # graph.add_edge("generate_diff_table", "generate_sequence_diagram")
+    # graph.add_edge("generate_sequence_diagram", "generate_activity_diagram")
+    # graph.add_edge("generate_activity_diagram", "post_pr_comment")
+    # graph.add_edge("post_pr_comment", END)
 
 
-owner = "mrvineet-raj"
-repo = "bookstore"
-pr_number = 1
+    compiled = graph.compile()
 
-url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}"
+    return compiled.invoke({
+        "owner": owner,
+        "pull_number": pull_number,
+        "repo": repo,
+        "llm_messages": []
+    })
 
-response = requests.get(url, headers={
-    "Accept": "application/vnd.github+json"
-})
-
-data = response.json()
-with open("pr_response.json", "w") as f:
-    json.dump(data, f, indent=2)
-
-diff_url  = data.get("diff_url")
-diff_response = requests.get(diff_url, headers={
-    # "Accept": "application/vnd.github+text"
-})
-
-# print(diff_response.text)
-diff_data = diff_response.text
-with open("diff_data.txt", "w") as f:
-    f.write(diff_data)
+prReview("MrVineetRaj",9,"verdict")
